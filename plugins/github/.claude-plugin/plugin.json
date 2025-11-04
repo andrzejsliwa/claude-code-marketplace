@@ -1,0 +1,22 @@
+{
+  "name": "github",
+  "version": "1.0.0",
+  "description": "AI-powered github tools",
+  "author": {
+    "name": "Andrzej Sliwa",
+    "email": "andrzej.sliwa@gmail.com",
+    "url": "https://github.com/andrzejsliwa"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai-powered",
+    "git",
+    "github"
+  ],
+  "components": {
+    "commands": 1
+  },
+  "commands": {
+    "workflow": ["open-pr"]
+  }
+}
