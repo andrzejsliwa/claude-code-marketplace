@@ -1,0 +1,26 @@
+{
+  "name": "claude_code_marketplace",
+  "owner": {
+    "name": "Andrzej Sliwa",
+    "url": "https://github.com/andrzejsliwa"
+  },
+  "metadata": {
+    "description": "Personal plugin marketplace for Claude Code extensions",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "github",
+      "description": "AI-powered github management",
+      "version": "1.0.0",
+      "author": {
+        "name": "Andrzej Sliwa",
+        "url": "https://github.com/andrzejsliwa",
+        "email": "andrzej.sliwa@gmail.com"
+      },
+      "homepage": "https://github.com/andrzejsliwa/claude_code_marketplace",
+      "tags": ["ai-powered"],
+      "source": "./plugins/github"
+    }
+  ]
+}
