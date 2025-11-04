@@ -6,13 +6,6 @@ AI-powered GitHub workflow automation for Claude Code.
 
 The GitHub plugin streamlines common GitHub workflows by providing intelligent commands that handle branch management, commits, and pull request creation with smart defaults and interactive guidance.
 
-## Components
-
-- **Commands:** 1
-- **Agents:** 0
-- **Hooks:** 0
-- **Skills:** 0
-
 ## Installation
 
 ### From Marketplace

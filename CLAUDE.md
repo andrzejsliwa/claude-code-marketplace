@@ -63,37 +63,32 @@ When working on this repository, follow the compounding engineering process:
 
 When agents, commands, hooks, or skills are added/removed:
 
-1. **Scan for actual files:**
+1. **Add component files** to the appropriate directories:
+   - Commands: `plugins/{plugin_name}/commands/`
+   - Agents: `plugins/{plugin_name}/agents/`
+   - Hooks: `plugins/{plugin_name}/hooks/` (or hooks.json)
+   - Skills: `plugins/{plugin_name}/skills/`
 
-   ```bash
-   # Count components (replace {plugin_name} with your plugin)
-   ls plugins/{plugin_name}/agents/*.md 2>/dev/null | wc -l
-   ls plugins/{plugin_name}/commands/*.md 2>/dev/null | wc -l
-   ls plugins/{plugin_name}/hooks/*.md 2>/dev/null | wc -l
-   ls plugins/{plugin_name}/skills/*.md 2>/dev/null | wc -l
-   ```
-
-2. **Update plugin.json** at `plugins/{plugin_name}/.claude-plugin/plugin.json`:
-
-   - Update `components.agents` count (if agents exist)
-   - Update `components.commands` count (if commands exist)
-   - Update `components.hooks` count (if hooks exist)
-   - Update `components.skills` count (if skills exist)
-   - Update `agents` object to categorize and describe agents
-   - Update `commands` object to categorize commands
+2. **Update plugin.json** (only if needed):
+   - If using **default directories**, no changes needed - components are auto-discovered
+   - If using **custom paths**, update the path fields (`commands`, `agents`, `hooks`)
 
 3. **Update plugin README** at `plugins/{plugin_name}/README.md`:
-
-   - Update component counts in the intro
-   - Update the component lists to match what exists
+   - List all available commands, agents, hooks, and skills
    - Add usage examples for new features
+   - Update version if making significant changes
 
-4. **Update marketplace.json** at `.claude-plugin/marketplace.json`:
-   - Usually doesn't need changes unless changing plugin description/tags
+4. **Update marketplace.json** (rarely needed):
+   - Only update if changing plugin description, version, or tags
 
-5. **Run validation** to ensure everything is correct:
+5. **Test the changes:**
    ```bash
-   ./scripts/validate.sh
+   # Reinstall plugin locally
+   claude /plugin uninstall {plugin_name}
+   claude /plugin install {plugin_name}
+
+   # Test commands
+   claude /your-command
    ```
 
 ### Marketplace.json Structure
@@ -147,17 +142,11 @@ Each plugin has its own plugin.json with detailed metadata.
     "url": "https://github.com/author"
   },
   "license": "MIT",
-  "keywords": ["ai-powered", "git", "github"],
-  "components": {
-    "commands": 1
-  },
-  "commands": {
-    "workflow": ["open-pr"]
-  }
+  "keywords": ["ai-powered", "git", "github"]
 }
 ```
 
-**Full example (with all component types):**
+**With custom component paths:**
 ```json
 {
   "name": "plugin-name",
@@ -170,34 +159,19 @@ Each plugin has its own plugin.json with detailed metadata.
   },
   "license": "MIT",
   "keywords": ["keyword1", "keyword2"],
-  "components": {
-    "agents": 5,
-    "commands": 3,
-    "hooks": 2,
-    "skills": 4
-  },
-  "agents": {
-    "development": [
-      {
-        "name": "agent-name",
-        "description": "Agent description",
-        "use_cases": ["use-case-1", "use-case-2"]
-      }
-    ]
-  },
-  "commands": {
-    "workflow": ["command1", "command2"]
-  },
-  "hooks": {
-    "automation": ["hook1", "hook2"]
-  },
-  "skills": {
-    "utilities": ["skill1", "skill2"]
-  }
+  "commands": ["./custom/commands/cmd1.md", "./custom/commands/cmd2.md"],
+  "agents": "./custom/agents/",
+  "hooks": "./custom/hooks.json"
 }
 ```
 
-**Important:** Only include component types that exist in your plugin. Don't add empty sections.
+**Important Notes:**
+- When using default directory structure (`commands/`, `agents/`, `hooks/`, `skills/` at plugin root), omit the path fields
+- Custom paths must be relative and start with `./`
+- Custom paths **supplement** default directories, they don't replace them
+- `commands` and `agents` accept string or array of file/directory paths
+- `hooks` points to a hooks.json file or can be inlined as an object
+- Skills are discovered automatically from the `skills/` directory (no field needed)
 
 ## Testing Changes
 
@@ -245,11 +219,11 @@ cat plugins/{plugin_name}/.claude-plugin/plugin.json | jq .
 # Run full validation suite
 ./scripts/validate.sh
 
-# Manual verification of component counts
-ls plugins/github/agents/*.md 2>/dev/null | wc -l     # Should match components.agents
-ls plugins/github/commands/*.md 2>/dev/null | wc -l   # Should match components.commands
-ls plugins/github/hooks/*.md 2>/dev/null | wc -l      # Should match components.hooks
-ls plugins/github/skills/*.md 2>/dev/null | wc -l     # Should match components.skills
+# List available components
+ls plugins/github/agents/*.md 2>/dev/null || echo "No agents"
+ls plugins/github/commands/*.md 2>/dev/null || echo "No commands"
+ls plugins/github/hooks/*.md 2>/dev/null || echo "No hooks"
+ls plugins/github/skills/*.md 2>/dev/null || echo "No skills"
 ```
 
 ## Common Tasks
@@ -258,45 +232,49 @@ ls plugins/github/skills/*.md 2>/dev/null | wc -l     # Should match components.
 
 1. Create directory if it doesn't exist: `mkdir -p plugins/{plugin_name}/agents`
 2. Create `plugins/{plugin_name}/agents/new-agent.md`
-3. Update plugin.json:
-   - Increment `components.agents` count
-   - Add to `agents` categorization object
-4. Update README.md agent list
-5. Run validation: `./scripts/validate.sh`
-6. Test with `claude agent new-agent "test prompt"`
+3. Update README.md to list the new agent
+4. Test locally:
+   ```bash
+   claude /plugin uninstall {plugin_name}
+   claude /plugin install {plugin_name}
+   claude agent new-agent "test prompt"
+   ```
 
 ### Adding a New Command
 
 1. Create directory if it doesn't exist: `mkdir -p plugins/{plugin_name}/commands`
 2. Create `plugins/{plugin_name}/commands/new-command.md`
-3. Update plugin.json:
-   - Increment `components.commands` count
-   - Add to `commands` categorization object
-4. Update README.md command list
-5. Run validation: `./scripts/validate.sh`
-6. Test with `claude /new-command`
+3. Update README.md to list the new command
+4. Test locally:
+   ```bash
+   claude /plugin uninstall {plugin_name}
+   claude /plugin install {plugin_name}
+   claude /new-command
+   ```
 
 ### Adding a New Hook
 
-1. Create directory if it doesn't exist: `mkdir -p plugins/{plugin_name}/hooks`
-2. Create `plugins/{plugin_name}/hooks/new-hook.md`
-3. Update plugin.json:
-   - Increment `components.hooks` count
-   - Add to `hooks` categorization object
-4. Update README.md hook list
-5. Run validation: `./scripts/validate.sh`
-6. Test by triggering the hook event
+1. Create `plugins/{plugin_name}/hooks.json` or add to existing hooks config
+2. Define hook configuration (see [hooks documentation](https://docs.claude.com/en/docs/claude-code/plugins-reference))
+3. Update README.md to document the new hook
+4. Test by triggering the hook event:
+   ```bash
+   claude /plugin uninstall {plugin_name}
+   claude /plugin install {plugin_name}
+   # Trigger the event that activates the hook
+   ```
 
 ### Adding a New Skill
 
 1. Create directory if it doesn't exist: `mkdir -p plugins/{plugin_name}/skills`
 2. Create `plugins/{plugin_name}/skills/new-skill.md`
-3. Update plugin.json:
-   - Increment `components.skills` count
-   - Add to `skills` categorization object
-4. Update README.md skill list
-5. Run validation: `./scripts/validate.sh`
-6. Test with the skill invocation method
+3. Update README.md to list the new skill
+4. Test locally:
+   ```bash
+   claude /plugin uninstall {plugin_name}
+   claude /plugin install {plugin_name}
+   # Invoke the skill according to its documentation
+   ```
 
 ### Updating Tags/Keywords
 
@@ -356,3 +334,14 @@ Updated CLAUDE.md to show the full directory structure (agents, commands, hooks,
 - Only include component types that actually exist in plugin.json
 
 **Learning:** Documentation should educate users about what's possible while staying grounded in what's actual. Show the full capability but don't claim features that don't exist. Use validation scripts to prevent drift.
+
+### 2025-11-04: Fixed plugin.json to match official Claude Code specification
+
+The plugin.json structure contained custom fields (`components` object and categorized `commands`/`agents`/`hooks` objects) that aren't part of the official Claude Code specification, preventing plugins from loading. Fixed by:
+
+- Removed `components` object - Not recognized by Claude Code
+- Removed categorization objects like `{"commands": {"workflow": [...]}}`  - Commands/agents should be file paths, not objects
+- When using default directory structure (`commands/`, `agents/`, etc.), omit path fields entirely - components are auto-discovered
+- Custom paths must be relative strings/arrays (e.g., `"commands": ["./custom/cmd.md"]`)
+
+**Learning:** Always validate against the official specification, not assumptions. The `components` field was a custom tracking mechanism that had no meaning to Claude Code. When in doubt, consult the official docs at https://docs.claude.com/en/docs/claude-code/plugins-reference and test locally with `claude /plugin install`.

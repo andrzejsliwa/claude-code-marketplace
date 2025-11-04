@@ -12,11 +12,5 @@
     "ai-powered",
     "git",
     "github"
-  ],
-  "components": {
-    "commands": 1
-  },
-  "commands": {
-    "workflow": ["open-pr"]
-  }
+  ]
 }
