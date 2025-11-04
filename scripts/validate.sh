@@ -129,56 +129,28 @@ for PLUGIN_DIR in "$PLUGINS_DIR"/*; do
         error "plugin.json missing required 'description' field"
     fi
 
-    # Check component counts
-    echo ""
-    echo "Validating component counts..."
-
-    # Count agents
+    # List available components (informational only)
     AGENTS_COUNT=$(ls "$PLUGIN_DIR/agents"/*.md 2>/dev/null | wc -l | tr -d ' ')
-    AGENTS_JSON=$(jq -r '.components.agents // 0' "$PLUGIN_JSON")
-
-    if [ "$AGENTS_COUNT" -gt 0 ] || [ "$AGENTS_JSON" -gt 0 ]; then
-        if [ "$AGENTS_COUNT" -eq "$AGENTS_JSON" ]; then
-            success "Agents count matches: $AGENTS_COUNT files = $AGENTS_JSON in JSON"
-        else
-            error "Agents count mismatch: $AGENTS_COUNT files ≠ $AGENTS_JSON in JSON"
-        fi
-    fi
-
-    # Count commands
     COMMANDS_COUNT=$(ls "$PLUGIN_DIR/commands"/*.md 2>/dev/null | wc -l | tr -d ' ')
-    COMMANDS_JSON=$(jq -r '.components.commands // 0' "$PLUGIN_JSON")
-
-    if [ "$COMMANDS_COUNT" -gt 0 ] || [ "$COMMANDS_JSON" -gt 0 ]; then
-        if [ "$COMMANDS_COUNT" -eq "$COMMANDS_JSON" ]; then
-            success "Commands count matches: $COMMANDS_COUNT files = $COMMANDS_JSON in JSON"
-        else
-            error "Commands count mismatch: $COMMANDS_COUNT files ≠ $COMMANDS_JSON in JSON"
-        fi
-    fi
-
-    # Count hooks
-    HOOKS_COUNT=$(ls "$PLUGIN_DIR/hooks"/*.md 2>/dev/null | wc -l | tr -d ' ')
-    HOOKS_JSON=$(jq -r '.components.hooks // 0' "$PLUGIN_JSON")
-
-    if [ "$HOOKS_COUNT" -gt 0 ] || [ "$HOOKS_JSON" -gt 0 ]; then
-        if [ "$HOOKS_COUNT" -eq "$HOOKS_JSON" ]; then
-            success "Hooks count matches: $HOOKS_COUNT files = $HOOKS_JSON in JSON"
-        else
-            error "Hooks count mismatch: $HOOKS_COUNT files ≠ $HOOKS_JSON in JSON"
-        fi
-    fi
-
-    # Count skills
+    HOOKS_EXISTS=0
     SKILLS_COUNT=$(ls "$PLUGIN_DIR/skills"/*.md 2>/dev/null | wc -l | tr -d ' ')
-    SKILLS_JSON=$(jq -r '.components.skills // 0' "$PLUGIN_JSON")
 
-    if [ "$SKILLS_COUNT" -gt 0 ] || [ "$SKILLS_JSON" -gt 0 ]; then
-        if [ "$SKILLS_COUNT" -eq "$SKILLS_JSON" ]; then
-            success "Skills count matches: $SKILLS_COUNT files = $SKILLS_JSON in JSON"
-        else
-            error "Skills count mismatch: $SKILLS_COUNT files ≠ $SKILLS_JSON in JSON"
-        fi
+    if [ -f "$PLUGIN_DIR/hooks.json" ] || [ -d "$PLUGIN_DIR/hooks" ]; then
+        HOOKS_EXISTS=1
+    fi
+
+    # Display component summary
+    if [ "$COMMANDS_COUNT" -gt 0 ]; then
+        success "Found $COMMANDS_COUNT command(s)"
+    fi
+    if [ "$AGENTS_COUNT" -gt 0 ]; then
+        success "Found $AGENTS_COUNT agent(s)"
+    fi
+    if [ "$HOOKS_EXISTS" -eq 1 ]; then
+        success "Found hooks configuration"
+    fi
+    if [ "$SKILLS_COUNT" -gt 0 ]; then
+        success "Found $SKILLS_COUNT skill(s)"
     fi
 
     # Check for README
@@ -188,14 +160,9 @@ for PLUGIN_DIR in "$PLUGINS_DIR"/*; do
         warning "Plugin missing README.md (recommended)"
     fi
 
-    # Verify components object exists if any components exist
-    TOTAL_COMPONENTS=$((AGENTS_COUNT + COMMANDS_COUNT + HOOKS_COUNT + SKILLS_COUNT))
-    if [ "$TOTAL_COMPONENTS" -gt 0 ]; then
-        if jq -e '.components' "$PLUGIN_JSON" > /dev/null 2>&1; then
-            success "Plugin has 'components' object"
-        else
-            error "Plugin has components but missing 'components' object in JSON"
-        fi
+    # Warn if components field exists (deprecated)
+    if jq -e '.components' "$PLUGIN_JSON" > /dev/null 2>&1; then
+        warning "Plugin has deprecated 'components' field (not part of official spec)"
     fi
 done
 
