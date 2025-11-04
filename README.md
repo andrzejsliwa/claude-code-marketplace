@@ -10,7 +10,7 @@ Official Claude Code Marketplace for Plugins Docs: https://docs.claude.com/en/do
 Test your marketplace locally before distribution:
 
 ```bash
-/plugin marketplace add ~/claude_code_marketplace
+/plugin marketplace add ~/claude-code-marketplace
 ```
 
 

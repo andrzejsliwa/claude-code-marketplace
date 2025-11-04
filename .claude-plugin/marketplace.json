@@ -1,5 +1,5 @@
 {
-  "name": "claude_code_marketplace",
+  "name": "claude-code-marketplace",
   "owner": {
     "name": "Andrzej Sliwa",
     "url": "https://github.com/andrzejsliwa"
@@ -18,7 +18,7 @@
         "url": "https://github.com/andrzejsliwa",
         "email": "andrzej.sliwa@gmail.com"
       },
-      "homepage": "https://github.com/andrzejsliwa/claude_code_marketplace",
+      "homepage": "https://github.com/andrzejsliwa/claude-code-marketplace",
       "tags": ["ai-powered"],
       "source": "./plugins/github"
     }

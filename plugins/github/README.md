@@ -140,4 +140,4 @@ Andrzej Sliwa
 
 - [Claude Code Plugin Documentation](https://docs.claude.com/en/docs/claude-code/plugins)
 - [GitHub CLI Documentation](https://cli.github.com/)
-- [Marketplace Repository](https://github.com/andrzejsliwa/claude_code_marketplace)
+- [Marketplace Repository](https://github.com/andrzejsliwa/claude-code-marketplace)
